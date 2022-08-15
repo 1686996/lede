@@ -64,6 +64,7 @@ jobs:
           rm -f ./feeds.conf.default
           wget -N --no-check-certificate -O ./.config https://xr.115.ge/lede.config
           wget -N --no-check-certificate -O ./feeds.conf.default https://xr.115.ge/feeds.conf.default
+          git pull
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 

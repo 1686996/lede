@@ -7,7 +7,7 @@
 # <https://github.com/KFERMercer/OpenWrt-CI>
 #
 
-name: OpenWrt-CI
+name: OpenWrt-Myrte
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
 
   build_openwrt:
 
-    name: Build OpenWrt firmware
+    name: OpenWrt 精简版.Myrte
 
     runs-on: ubuntu-latest
 
@@ -62,7 +62,7 @@ jobs:
         run: |
           rm -f ./.config*
           rm -f ./feeds.conf.default
-          wget -N --no-check-certificate -O ./.config https://xr.115.ge/lede.config
+          wget -N --no-check-certificate -O ./.config https://xr.115.ge/.config
           wget -N --no-check-certificate -O ./feeds.conf.default https://xr.115.ge/feeds.conf.default
           git pull
           ./scripts/feeds update -a
@@ -82,7 +82,7 @@ jobs:
           # ===============================================================
           # 
 
-          sed -i 's/^[ \t]*//g' ./.config
+          # sed -i 's/^[ \t]*//g' ./.config
           make defconfig
 
       - name: Make download

@@ -47,42 +47,92 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get clean
 
-          # sudo mkdir -p -m 777 /mnt/openwrt/bin /mnt/openwrt/build_dir/host /mnt/openwrt/build_dir/hostpkg /mnt/openwrt/dl /mnt/openwrt/feeds /mnt/openwrt/staging_dir
-          # ln -s /mnt/openwrt/bin ./bin
-          # mkdir -p ./build_dir
-          # ln -s -f /mnt/openwrt/build_dir/host ./build_dir/host
-          # ln -s -f /mnt/openwrt/build_dir/hostpkg ./build_dir/hostpkg
-          # ln -s /mnt/openwrt/dl ./dl
-          # ln -s /mnt/openwrt/feeds ./feeds
-          # ln -s /mnt/openwrt/staging_dir ./staging_dir
+      - name: 自定义插件主题。
+        run: |
+          cd package
+          git clone https://github.com/kenzok8/small.git
+          git clone https://github.com/kenzok8/openwrt-packages.git
 
           df -h
 
       - name: Generate configuration file
         run: |
           rm -f ./.config*
-          rm -f ./feeds.conf.default
-          wget -N --no-check-certificate -O ./.config https://xr.115.ge/.config
-          wget -N --no-check-certificate -O ./feeds.conf.default https://xr.115.ge/feeds.conf.default
-          git pull
+          # rm -f ./feeds.conf.default
+          # wget -N --no-check-certificate -O ./.config https://xr.115.ge/.config
+          # wget -N --no-check-certificate -O ./feeds.conf.default https://xr.115.ge/feeds.conf.default
+          # git pull
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-          #
-          # 在 cat >> .config <<EOF 到 EOF 之间粘贴你的编译配置, 需注意缩进关系
-          # 例如:
+         
 
           cat >> .config <<EOF
-          CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_KERNEL_BUILD_USER="OpenWrt-CI"
           CONFIG_KERNEL_BUILD_DOMAIN="Azure"
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
+          CONFIG_TARGET_BOARD="x86"
+          CONFIG_TARGET_SUBTARGET="64"
+          CONFIG_TARGET_PROFILE="DEVICE_generic"
+          CONFIG_TARGET_ARCH_PACKAGES="x86_64"
+          CONFIG_DEFAULT_autocore-x86=y
+          CONFIG_TARGET_SQUASHFS_BLOCK_SIZE=1024
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=64
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
+          CONFIG_IPV6=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_TARGET_PREINIT_IP="192.168.31.111"
+          CONFIG_TARGET_PREINIT_NETMASK="255.255.255.0"
+          CONFIG_TARGET_PREINIT_BROADCAST="192.168.1.255"
           EOF
 
-          #
-          # ===============================================================
-          # 
+          cat >> .config <<EOF
+          CONFIG_PACKAGE_luci-app-adguardhome=y
+          CONFIG_PACKAGE_luci-app-adguardhome_INCLUDE_binary=y
+          CONFIG_PACKAGE_luci-app-passwall=y
+          CONFIG_PACKAGE_luci-app-passwall_Transparent_Proxy=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Brook=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Haproxy=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Hysteria=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_NaiveProxy=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Libev_Client=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Libev_Server=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Rust_Client=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Rust_Server=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_Libev_Client=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_Libev_Server=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Simple_Obfs=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan_GO=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan_Plus=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_V2ray=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_V2ray_Plugin=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Xray=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Xray_Plugin=y
+          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
+          CONFIG_PACKAGE_smartdns=y
+          CONFIG_PACKAGE_luci-app-smartdns=y
+          CONFIG_PACKAGE_luci-i18n-smartdns-zh-cn=y
+          CONFIG_PACKAGE_UnblockNeteaseMusic=y
+          CONFIG_PACKAGE_UnblockNeteaseMusic-Go=y
+          CONFIG_DEFAULT_luci-app-unblockmusic=y
+          CONFIG_PACKAGE_luci-app-unblockmusic=y
+          CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
+          CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS=y
+          CONFIG_PACKAGE_luci-i18n-unblockmusic-zh-cn=y
+          CONFIG_DEFAULT_luci-app-turboacc=y
+          CONFIG_PACKAGE_luci-app-turboacc=y
+          CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_SHORTCUT_FE_CM=y
+          CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_BBR_CCA=y
+          CONFIG_PACKAGE_luci-i18n-turboacc-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-argonne=y
+          CONFIG_PACKAGE_luci-app-argonne-config=y
+          EOF
 
-          # sed -i 's/^[ \t]*//g' ./.config
+          sed -i 's/^[ \t]*//g' ./.config
           make defconfig
 
       - name: Make download
